@@ -1,38 +1,77 @@
 import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { initDB } from './db.js';
 
-if (process.env.DISABLE_SSL_VERIFY === 'true') {
-  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  console.log('[SSL] Certificate verification disabled for internal TCS endpoints.');
-}
-
-import sessionRoutes  from './routes/session.js';
+import sessionRoutes from './routes/session.js';
 import questionRoutes from './routes/questions.js';
-import archiveRoutes  from './routes/archive.js';
-import draftRoutes    from './routes/draft.js';
-import modelsRoutes   from './routes/models.js';
+import archiveRoutes from './routes/archive.js';
+import draftRoutes from './routes/draft.js';
+import modelsRoutes from './routes/models.js';
 
-const app  = express();
+const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Fix __dirname for ESM (IMPORTANT for pkg)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ==========================
+// CORS (DEV + PROD SAFE)
+// ==========================
 app.use(cors({
-  origin: 'http://localhost:5173',
-  allowedHeaders: ['Content-Type', 'x-api-key', 'x-base-url', 'x-model'],
+  origin: true, // allows any origin (safe for local EXE usage)
+  allowedHeaders: [
+    'Content-Type',
+    'x-api-key',
+    'x-base-url',
+    'x-model'
+  ]
 }));
+
 app.use(express.json());
 
-await initDB();
+// ==========================
+// INIT DB (safe async)
+// ==========================
+(async () => {
+  try {
+    await initDB();
+    console.log('[DB] Initialized successfully');
+  } catch (err) {
+    console.error('[DB] Init failed:', err);
+  }
+})();
 
-app.use('/api/sessions',  sessionRoutes);
+// ==========================
+// API ROUTES
+// ==========================
+app.use('/api/sessions', sessionRoutes);
 app.use('/api/questions', questionRoutes);
-app.use('/api/archive',   archiveRoutes);
-app.use('/api/draft',     draftRoutes);
-app.use('/api/models',    modelsRoutes);
+app.use('/api/archive', archiveRoutes);
+app.use('/api/draft', draftRoutes);
+app.use('/api/models', modelsRoutes);
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok' });
+});
 
+// ==========================
+// SERVE FRONTEND (IMPORTANT)
+// ==========================
+const clientDistPath = path.join(__dirname, '../client/dist');
+
+app.use(express.static(clientDistPath));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(clientDistPath, 'index.html'));
+});
+
+// ==========================
+// START SERVER
+// ==========================
 app.listen(PORT, () => {
-  console.log(`[SERVER] Hackathon Engine running on http://localhost:${PORT}`);
+  console.log(`[SERVER] Running on http://localhost:${PORT}`);
 });
