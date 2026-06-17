@@ -1,0 +1,36 @@
+name: Build Windows EXE
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install root
+        run: npm install
+
+      - name: Install server
+        run: cd server && npm install
+
+      - name: Install client
+        run: cd client && npm install
+
+      - name: Build client
+        run: npm run build:client
+
+      - name: Build exe
+        run: npm run build:exe
+
+      - name: Upload exe
+        uses: actions/upload-artifact@v4
+        with:
+          name: HackathonEngine
+          path: dist-exe/HackathonEngine.exe
