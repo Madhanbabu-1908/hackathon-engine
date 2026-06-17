@@ -7,9 +7,12 @@
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run dev",
     "client": "cd client && npm run dev",
+
     "build:client": "cd client && npm run build",
+
     "build:exe": "npm run build:client && pkg . --targets node18-win-x64 --output dist-exe/HackathonEngine.exe"
   },
+
   "pkg": {
     "scripts": [
       "launcher.cjs",
@@ -18,15 +21,11 @@
     "assets": [
       "client/dist/**/*",
       "server/**/*"
-    ],
-    "targets": [
-      "node18-win-x64"
     ]
   },
+
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "electron": "^31.0.0",
-    "electron-builder": "^24.13.3",
     "pkg": "^5.8.1"
   }
 }
