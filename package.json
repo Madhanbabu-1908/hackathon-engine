@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "TCS GenAI Lab Hackathon Orchestration Engine",
   "main": "launcher.cjs",
+  "bin": "launcher.cjs",
   "scripts": {
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "server": "cd server && npm run dev",
