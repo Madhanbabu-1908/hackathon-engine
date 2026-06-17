@@ -23,5 +23,18 @@
     "electron":        "^31.0.0",
     "electron-builder":"^24.13.3",
     "pkg":             "^5.8.1"
-  }
+  },
+  "pkg": {
+  "scripts": [
+    "launcher.cjs",
+    "server/**/*.js"
+  ],
+  "assets": [
+    "client/dist/**/*",
+    "server/**/*"
+  ],
+  "targets": [
+    "node18-win-x64"
+  ]
+}
 }
