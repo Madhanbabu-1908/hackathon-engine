@@ -1,0 +1,27 @@
+{
+  "name": "hackathon-engine",
+  "version": "1.0.0",
+  "description": "TCS GenAI Lab Hackathon Orchestration Engine",
+  "main": "launcher.cjs",
+  "scripts": {
+    "dev":            "concurrently \"npm run server\" \"npm run client\"",
+    "server":         "cd server && npm run dev",
+    "client":         "cd client && npm run dev",
+    "install:all":    "npm install && cd server && npm install && cd ../client && npm install",
+    "build:client":   "cd client && npm run build",
+    "build:exe":      "npm run build:client && pkg launcher.cjs --targets node18-win-x64 --output dist-exe/HackathonEngine.exe --assets \"server/**/*,client/dist/**/*\""
+  },
+  "pkg": {
+    "assets": [
+      "server/**/*",
+      "client/dist/**/*"
+    ],
+    "targets": ["node18-win-x64"]
+  },
+  "devDependencies": {
+    "concurrently":    "^8.2.2",
+    "electron":        "^31.0.0",
+    "electron-builder":"^24.13.3",
+    "pkg":             "^5.8.1"
+  }
+}
