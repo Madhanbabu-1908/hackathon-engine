@@ -8,23 +8,32 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - run: npm ci
+      # IMPORTANT: use npm install (NOT npm ci)
+      - name: Install root deps
+        run: npm install
 
-      - run: cd server && npm ci
+      - name: Install server deps
+        run: cd server && npm install
 
-      - run: cd client && npm ci
+      - name: Install client deps
+        run: cd client && npm install
 
-      - run: npm run build:client
+      - name: Build React app
+        run: npm run build:client
 
-      - run: npm run build:exe
+      - name: Build EXE using pkg
+        run: npm run build:exe
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
         with:
           name: HackathonEngine
           path: dist-exe/HackathonEngine.exe
