@@ -35,7 +35,7 @@ export function useAudio() {
       osc.type = 'square';
       osc.frequency.setValueAtTime(800, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(200, ctx.currentTime + 0.04);
-      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.setValueAtTime(0.5, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.05);
@@ -47,13 +47,12 @@ export function useAudio() {
   const playCountdownTick = useCallback(() => {
     try {
       const ctx = getCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
+      const osc = ctx.createOscillator();      const gain = ctx.createGain();
       osc.connect(gain);
       gain.connect(ctx.destination);
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(120, ctx.currentTime);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.setValueAtTime(0.8, ctx.currentTime);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.1);
@@ -75,7 +74,7 @@ export function useAudio() {
         const t = ctx.currentTime + i * 0.12;
         osc.frequency.setValueAtTime(freq, t);
         gain.gain.setValueAtTime(0, t);
-        gain.gain.linearRampToValueAtTime(0.4, t + 0.05);
+        gain.gain.linearRampToValueAtTime(1.0, t + 0.05);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
         osc.start(t);
         osc.stop(t + 0.5);
@@ -97,8 +96,7 @@ export function useAudio() {
       osc.type = 'sawtooth';
       osc.frequency.setValueAtTime(80, ctx.currentTime);
       osc.frequency.linearRampToValueAtTime(60, ctx.currentTime + 0.4);
-      gain.gain.setValueAtTime(0.5, ctx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
+      gain.gain.setValueAtTime(1.0, ctx.currentTime);      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
       osc.start(ctx.currentTime);
       osc.stop(ctx.currentTime + 0.5);
 
@@ -112,7 +110,7 @@ export function useAudio() {
       const noiseGain = ctx.createGain();
       noise.connect(noiseGain);
       noiseGain.connect(ctx.destination);
-      noiseGain.gain.setValueAtTime(0.2, ctx.currentTime);
+      noiseGain.gain.setValueAtTime(0.6, ctx.currentTime);
       noiseGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
       noise.start(ctx.currentTime);
     } catch (e) {}
@@ -132,7 +130,7 @@ export function useAudio() {
         osc.type = 'triangle';
         const t = ctx.currentTime + i * 0.08;
         osc.frequency.setValueAtTime(freq, t);
-        gain.gain.setValueAtTime(0.35, t);
+        gain.gain.setValueAtTime(0.9, t);
         gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
         osc.start(t);
         osc.stop(t + 0.4);
