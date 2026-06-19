@@ -78,8 +78,8 @@ export default function Layout({ children, showHeader=true }) {
           </p>
         </footer>
       </div>
+      <FloatingChatbot />
     </div>
-    <FloatingChatbot />
-  </>
+    
   );
 }
