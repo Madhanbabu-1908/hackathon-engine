@@ -65,6 +65,22 @@ jobs:
           cd client
           npx cap sync android
 
+      - name: Fix Kotlin Version Conflict
+        run: |
+          cd client/android
+          cat >> build.gradle << 'EOF'
+          
+          allprojects {
+              configurations.all {
+                  resolutionStrategy {
+                      force 'org.jetbrains.kotlin:kotlin-stdlib:1.8.22'
+                      force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.8.22'
+                      force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.22'
+                  }
+              }
+          }
+          EOF
+
       - name: Build Android APK (Debug)
         run: |
           cd client/android
