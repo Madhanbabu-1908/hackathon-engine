@@ -17,6 +17,8 @@ const PORT = process.env.PORT || 3001;
 // Fix __dirname for ESM (IMPORTANT for pkg)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const envDir = process.pkg ? path.dirname(process.execPath) : __dirname;
+dotenv.config({ path: path.join(envDir, '.env') });
 
 // ==========================
 // CORS (DEV + PROD SAFE)
