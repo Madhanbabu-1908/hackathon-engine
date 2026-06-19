@@ -1,0 +1,74 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Root Dependencies
+        run: npm install
+
+      - name: Install Server Dependencies
+        run: cd server && npm install
+
+      - name: Install Client Dependencies
+        run: cd client && npm install
+
+      - name: Build Client
+        run: cd client && npm run build
+
+      - name: Copy Client Build to Server Public
+        run: |
+          mkdir -p server/public
+          cp -r client/dist/* server/public/
+
+      - name: Install Capacitor Dependencies
+        run: |
+          cd client
+          npm install @capacitor/core @capacitor/cli @capacitor/android
+          npx cap init "Hackathon Engine" "com.hackathon.engine" --web-dir=dist --package-name=com.hackathon.engine
+
+      - name: Add Android Platform
+        run: |
+          cd client
+          npx cap add android
+
+      - name: Sync Capacitor
+        run: |
+          cd client
+          npx cap sync android
+
+      - name: Build Android APK (Debug)
+        run: |
+          cd client/android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: HackathonEngine-Android-APK
+          path: client/android/app/build/outputs/apk/debug/app-debug.apk
