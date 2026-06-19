@@ -22,19 +22,32 @@ export default function Challenge() {
   const [selected, setSelected] = useState(null);
   const [outcome,  setOutcome]  = useState(null);
   const [loading,  setLoading]  = useState(false);
+  const [questionVisible, setQuestionVisible] = useState(false);
   const timerRef   = useRef(null);
   const questionId = useRef(null);
 
+  let speechTimeout = null;
+
   useEffect(() => {
-    axios.get(`/api/questions/next/${sessionId}`).then(r => { setQuestion(r.data); questionId.current = r.data.id; });
+    // Preload voices
+    if (window.speechSynthesis) {
+      window.speechSynthesis.getVoices();
+      window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+    }
+    
+    axios.get(`/api/questions/next/${sessionId}`).then(r => { 
+      setQuestion(r.data); 
+      questionId.current = r.data.id;
+      setQuestionVisible(false);
+      setTimeout(() => setQuestionVisible(true), 300);
+    });
   }, [sessionId]);
 
   const startTimer = () => {
     setPhase('ACTIVE'); setTimeLeft(TIMER_DURATION);
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
-        const next = prev - 1;
-        if (next <= 10 && next > 0) playCountdownTick();
+        const next = prev - 1;        if (next <= 10 && next > 0) playCountdownTick();
         if (next <= 0) { clearInterval(timerRef.current); handleResolve(-1); return 0; }
         return next;
       });
@@ -58,35 +71,55 @@ export default function Challenge() {
   };
 
   const speakQuestion = (text) => {
-  if (!window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const utterance = new SpeechSynthesisUtterance(text);
-  
-  const setVoice = () => {
-    const voices = window.speechSynthesis.getVoices();
-    // Look specifically for Indian English accent
-    const indianVoice = voices.find(v => v.lang === 'en-IN') || voices.find(v => v.lang.startsWith('en-IN'));
-    if (indianVoice) {
-      utterance.voice = indianVoice;
-    }
-    utterance.rate = 0.9; // Slightly slower for clarity
-    utterance.pitch = 1;
-    window.speechSynthesis.speak(utterance);
+    if (!window.speechSynthesis || !text) return;
+    
+    window.speechSynthesis.cancel();
+    if (speechTimeout) clearTimeout(speechTimeout);
+
+    // Wait 1.5 seconds before speaking
+    speechTimeout = setTimeout(() => {
+      const utterance = new SpeechSynthesisUtterance(text);
+
+      const setVoice = () => {
+        const voices = window.speechSynthesis.getVoices();
+        const indianVoice = 
+          voices.find(v => v.lang === 'en-IN' && v.name.toLowerCase().includes('female')) ||
+          voices.find(v => v.lang === 'en-IN') || 
+          voices.find(v => v.lang.startsWith('en-IN'));
+        
+        if (indianVoice) {
+          utterance.voice = indianVoice;
+        }
+        
+        // Max volume + slower rate for clarity
+        utterance.volume = 1.0;
+        utterance.rate = 0.88;
+        utterance.pitch = 1.0;
+        
+        window.speechSynthesis.speak(utterance);      };
+
+      if (window.speechSynthesis.getVoices().length === 0) {
+        window.speechSynthesis.onvoiceschanged = setVoice;
+      } else {
+        setVoice();
+      }
+    }, 1500);
   };
 
-  if (window.speechSynthesis.getVoices().length === 0) {
-    window.speechSynthesis.onvoiceschanged = setVoice;
-  } else {
-    setVoice();
-  }
-};
-
   useEffect(() => () => clearInterval(timerRef.current), []);
+  
   useEffect(() => {
-  if (question) {
-    speakQuestion(question.question);
-  }
-}, [question]);
+    if (questionVisible && question?.question) {
+      speakQuestion(question.question);
+    }
+  }, [questionVisible, question]);
+
+  useEffect(() => {
+    return () => {
+      window.speechSynthesis?.cancel();
+      if (speechTimeout) clearTimeout(speechTimeout);
+    };
+  }, []);
 
   const timerColor = timeLeft<=10 ? rgba('red',1) : timeLeft<=30 ? rgba('gold',1) : rgba('teal',1);
   const timerUrgent = timeLeft<=10 && phase==='ACTIVE';
@@ -112,8 +145,7 @@ export default function Challenge() {
         {phase==='READY' && (
           <div className="glass-card rounded-2xl p-10 text-center border-gold-neon">
             <div className="text-6xl mb-6 animate-float">⚡</div>
-            <p className="text-white/60 font-body mb-8 text-lg">Team is at the terminal. Ready to begin?</p>
-            <button onClick={startTimer} disabled={!question} className="px-12 py-5 rounded-xl font-display font-bold text-2xl uppercase tracking-widest transition-all duration-300 disabled:opacity-40"
+            <p className="text-white/60 font-body mb-8 text-lg">Team is at the terminal. Ready to begin?</p>            <button onClick={startTimer} disabled={!question} className="px-12 py-5 rounded-xl font-display font-bold text-2xl uppercase tracking-widest transition-all duration-300 disabled:opacity-40"
               style={{ background:`linear-gradient(135deg,${rgba('gold',0.25)},${rgba('gold',0.1)})`, border:`2px solid ${rgba('gold',0.7)}`, color:rgba('gold',1), boxShadow:`0 0 40px ${rgba('gold',0.3)}` }}>
               ⚡ Initiate Challenge
             </button>
@@ -162,8 +194,7 @@ export default function Challenge() {
                 <p className="text-4xl mb-2">{outcome.outcome==='CORRECT'?'🎯':outcome.outcome==='PITY_PASS'?'🎁':outcome.outcome==='TIMEOUT'?'⏰':'✗'}</p>
                 <p className="font-display font-bold text-2xl mb-1"
                   style={{ color: outcome.outcome==='CORRECT'||outcome.outcome==='PITY_PASS'?rgba('green',1):rgba('red',1) }}>
-                  {outcome.outcome==='CORRECT'?'Correct!':outcome.outcome==='PITY_PASS'?'Pity Pass — 3 Strikes':outcome.outcome==='TIMEOUT'?"Time's Up!":'Wrong Answer'}
-                </p>
+                  {outcome.outcome==='CORRECT'?'Correct!':outcome.outcome==='PITY_PASS'?'Pity Pass — 3 Strikes':outcome.outcome==='TIMEOUT'?"Time's Up!":'Wrong Answer'}                </p>
                 {outcome.use_case_num&&(
                   <div className="mt-4 py-4 px-6 rounded-xl" style={{ background:rgba('gold',0.1), border:`1px solid ${rgba('gold',0.4)}` }}>
                     <p className="text-white/60 text-xs font-mono uppercase tracking-widest mb-1">Use Case Assigned</p>
