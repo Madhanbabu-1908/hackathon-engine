@@ -52,6 +52,7 @@ app.use('/api/questions', questionRoutes);
 app.use('/api/archive', archiveRoutes);
 app.use('/api/draft', draftRoutes);
 app.use('/api/models', modelsRoutes);
+app.use('/api/chat', chatRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
