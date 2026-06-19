@@ -1,16 +1,9 @@
-import { Router } from 'express';
-import db from '../db.js';
+const { Router } = require('express');
+const db = require('../db.js');
 
 const router = Router();
 
-// ── GET /api/draft/queue/:session_id ────────────────────────
-// Returns two lists:
-//   active  = teams available for this spin (waiting=0, not drafted)
-//   waiting = teams sitting out this round (waiting=1)
 router.get('/queue/:session_id', (req, res) => {
-  // Check if we should release waiting teams:
-  // Waiting teams are released when ALL non-waiting, non-drafted teams
-  // have completed at least one attempt this round.
   maybeReleaseWaiting(req.params.session_id);
 
   const queue = db.all(
@@ -35,9 +28,6 @@ router.get('/queue/:session_id', (req, res) => {
   res.json({ queue, waiting: waitingTeams, all_teams: allTeams });
 });
 
-// ── Release waiting teams when all active teams have had their turn ──
-// "Round complete" = no non-waiting, non-drafted teams remain in queue
-// (they've all either been drafted or just had their attempt)
 function maybeReleaseWaiting(session_id) {
   const activeRemaining = db.get(
     `SELECT COUNT(*) as cnt FROM teams
@@ -50,7 +40,6 @@ function maybeReleaseWaiting(session_id) {
     [session_id]
   );
 
-  // If no active teams left but waiting teams exist → release them
   if (activeRemaining.cnt === 0 && hasWaiting.cnt > 0) {
     db.run(
       `UPDATE teams SET waiting = 0 WHERE session_id = ? AND is_drafted = 0`,
@@ -97,7 +86,6 @@ router.post('/resolve', (req, res) => {
   let outcome    = '';
 
   if (isCorrect) {
-    // ── Correct: assign use case, mark drafted ───────────
     useCaseNum = assignRandomUseCase(session_id);
     outcome    = 'CORRECT';
     db.run(
@@ -106,7 +94,6 @@ router.post('/resolve', (req, res) => {
     );
 
   } else if (newStrikes >= 3) {
-    // ── Pity pass: 3 strikes, auto-assign ────────────────
     useCaseNum = assignRandomUseCase(session_id);
     outcome    = 'PITY_PASS';
     db.run(
@@ -115,8 +102,6 @@ router.post('/resolve', (req, res) => {
     );
 
   } else {
-    // ── Wrong/Timeout: set waiting=1 so they leave wheel ─
-    // They will only return after all other active teams finish their turn
     outcome = isTimeout ? 'TIMEOUT' : 'WRONG';
     const maxRow = db.get(
       `SELECT MAX(draft_order) as maxOrd FROM teams WHERE session_id=? AND is_drafted=0`,
@@ -156,4 +141,4 @@ function assignRandomUseCase(session_id) {
   return available.length === 0 ? null : available[Math.floor(Math.random() * available.length)];
 }
 
-export default router;
+module.exports = router;
