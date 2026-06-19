@@ -1,11 +1,14 @@
 const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
+const os = require('os');
 
-const DB_PATH = path.join(
-  process.pkg ? path.dirname(process.execPath) : __dirname,
-  'hackathon.db'
-);
+// Save DB in user's AppData to prevent Admin permission prompts
+const appDataPath = process.env.APPDATA || (process.platform === 'darwin' ? path.join(os.homedir(), 'Library/Preferences') : os.homedir());
+const DB_DIR = path.join(appDataPath, 'HackathonEngine');
+if (!fs.existsSync(DB_DIR)) fs.mkdirSync(DB_DIR, { recursive: true });
+
+const DB_PATH = path.join(DB_DIR, 'hackathon.db');
 
 let db = null;
 
@@ -35,7 +38,6 @@ function all(sql, params = []) {
 function lastInsertId() { return get('SELECT last_insert_rowid() as id').id; }
 
 async function initDB() {
-  // FIX: Explicitly load the WASM binary for pkg compatibility
   const wasmPath = path.join(__dirname, 'node_modules/sql.js/dist/sql-wasm.wasm');
   const SQL = await initSqlJs({
     wasmBinary: fs.readFileSync(wasmPath)
@@ -97,7 +99,7 @@ async function initDB() {
     console.log('[DB] Migration: added waiting column to teams.');
     saveDB();
   } catch (e) {
-    // Column already exists — safe to ignore
+    // Column already exists
   }
 
   saveDB();
