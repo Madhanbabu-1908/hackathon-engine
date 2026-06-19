@@ -16,7 +16,10 @@
 
  "pkg": {
   "scripts": ["server/**/*.js"],
-  "assets": ["client/dist/**/*"],
+  "assets": [
+    "client/dist/**/*",
+    "server/node_modules/sql.js/dist/*.wasm"
+  ],
   "targets": ["node18-win-x64"],
   "outputPath": "dist-exe"
 },
