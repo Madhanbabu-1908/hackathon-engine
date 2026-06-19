@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import ParticleBackground from './ParticleBackground.jsx';
 import { rgba } from '../theme.js';
 import { clearCredentials, getCredentials } from '../utils/credentials.js';
+import FloatingChatbot from './FloatingChatbot.jsx';
 
 export default function Layout({ children, showHeader=true }) {
   const navigate = useNavigate();
