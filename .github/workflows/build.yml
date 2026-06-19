@@ -36,8 +36,8 @@ jobs:
 
       - name: Patch EXE icon and execution level
         run: |
-          npm install rcedit
-          node -e "const { rcedit } = require('rcedit'); rcedit('dist-exe/HackathonEngine.exe', { icon: 'assets/icon.ico', 'requested-execution-level': 'asInvoker' }).then(() => console.log('Patched OK')).catch(e => { console.error(e); process.exit(1); })"
+          npm install rcedit@4.0.1
+          node -e "const rcedit = require('rcedit'); rcedit('dist-exe/HackathonEngine.exe', { icon: 'assets/icon.ico', 'requested-execution-level': 'asInvoker' }).then(() => console.log('Patched OK')).catch(e => { console.error(e); process.exit(1); })"
 
       - name: Copy env template
         run: copy .env.example dist-exe\.env
