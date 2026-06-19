@@ -93,7 +93,7 @@ export default function Setup() {
           <div className="glass-card rounded-xl p-5">
             <label className="block text-xs font-mono uppercase tracking-widest mb-3" style={{ color:rgba('teal',1) }}>Number of Teams</label>
             <div className="flex gap-2">
-              {[2,3,4,5,6].map(n => (
+              {[2,3,4,5,6,7,8,9,10].map(n => (
                 <button key={n} onClick={()=>handleCountChange(n)} className="flex-1 py-3 rounded-lg font-display font-bold text-xl transition-all duration-200"
                   style={{ background:teamCount===n?rgba('teal',0.2):'rgba(255,255,255,0.05)', border:`1px solid ${teamCount===n?rgba('teal',0.6):'rgba(255,255,255,0.1)'}`, color:teamCount===n?rgba('teal',1):'rgba(255,255,255,0.4)', boxShadow:teamCount===n?`0 0 15px ${rgba('teal',0.2)}`:'none' }}>
                   {n}
