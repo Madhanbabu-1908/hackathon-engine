@@ -2,21 +2,20 @@ name: Build EXE
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      # IMPORTANT: use npm install (NOT npm ci)
       - name: Install root deps
         run: npm install
 
@@ -26,14 +25,20 @@ jobs:
       - name: Install client deps
         run: cd client && npm install
 
-      - name: Build React app
-        run: npm run build:client
+      - name: Build client
+        run: cd client && npm run build
 
-      - name: Build EXE using pkg
-        run: npm run build:exe
+      - name: Install pkg
+        run: npm install -g pkg
 
-      - name: Upload EXE
+      - name: Build EXE
+        run: pkg launcher.cjs --targets node18-win-x64 --output dist-exe/HackathonEngine.exe
+
+      - name: Copy env template
+        run: copy .env.example dist-exe\.env
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: HackathonEngine
-          path: dist-exe/HackathonEngine.exe
+          name: HackathonEngine-portable
+          path: dist-exe/
