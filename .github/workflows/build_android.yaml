@@ -49,7 +49,11 @@ jobs:
         run: |
           cd client
           npm install @capacitor/core @capacitor/cli @capacitor/android
-          npx cap init "Hackathon Engine" "com.hackathon.engine" --web-dir=dist --package-name=com.hackathon.engine
+
+      - name: Initialize Capacitor
+        run: |
+          cd client
+          npx cap init "Hackathon Engine" "com.hackathon.engine" --web-dir=dist
 
       - name: Add Android Platform
         run: |
