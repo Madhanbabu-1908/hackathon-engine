@@ -33,7 +33,7 @@ jobs:
 
       - name: Fetch and patch base Node binary (icon + execution level)
         run: |
-          node -e "const fetch = require('pkg-fetch'); const rcedit = require('rcedit'); fetch.need({ tag: 'node18', platform: 'win', arch: 'x64' }).then(binPath => { console.log('Base binary:', binPath); return rcedit(binPath, { icon: 'assets/icon.ico', 'requested-execution-level': 'asInvoker' }); }).then(() => console.log('Base binary patched OK')).catch(e => { console.error(e); process.exit(1); })"
+          node -e "const fetch = require('pkg-fetch'); const rcedit = require('rcedit'); fetch.need({ nodeRange: 'node18', platform: 'win', arch: 'x64' }).then(binPath => { console.log('Base binary:', binPath); return rcedit(binPath, { icon: 'assets/icon.ico', 'requested-execution-level': 'asInvoker' }); }).then(() => console.log('Base binary patched OK')).catch(e => { console.error(e); process.exit(1); })"
 
       - name: Build EXE
         run: npx pkg launcher.cjs --targets node18-win-x64 --output dist-exe/HackathonEngine.exe
