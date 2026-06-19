@@ -2,8 +2,8 @@
 // routes/archive.js — Completed session history
 // ============================================================
 
-import { Router } from 'express';
-import db from '../db.js';
+const { Router } = require('express');
+const db = require('../db.js');
 
 const router = Router();
 
@@ -45,4 +45,4 @@ router.get('/:id', (req, res) => {
   res.json({ session, teams, draft_log: formattedLog });
 });
 
-export default router;
+module.exports = router;
