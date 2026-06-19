@@ -1,22 +1,18 @@
-import dotenv from 'dotenv';
-import express from 'express';
-import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { initDB } from './db.js';
+const dotenv = require('dotenv');
+const express = require('express');
+const cors = require('cors');
+const path = require('path');
+const { initDB } = require('./db.js');
 
-import sessionRoutes from './routes/session.js';
-import questionRoutes from './routes/questions.js';
-import archiveRoutes from './routes/archive.js';
-import draftRoutes from './routes/draft.js';
-import modelsRoutes from './routes/models.js';
+const sessionRoutes  = require('./routes/session.js');
+const questionRoutes = require('./routes/questions.js');
+const archiveRoutes  = require('./routes/archive.js');
+const draftRoutes    = require('./routes/draft.js');
+const modelsRoutes   = require('./routes/models.js');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Fix __dirname for ESM (IMPORTANT for pkg)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 const envDir = process.pkg ? path.dirname(process.execPath) : __dirname;
 dotenv.config({ path: path.join(envDir, '.env') });
 
