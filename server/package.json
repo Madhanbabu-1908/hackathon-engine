@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "Express backend for TCS GenAI Hackathon Engine",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "node --watch index.js",
     "start": "node index.js"
