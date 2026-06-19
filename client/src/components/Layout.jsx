@@ -80,5 +80,6 @@ export default function Layout({ children, showHeader=true }) {
       </div>
     </div>
     <FloatingChatbot />
+  </>
   );
 }
