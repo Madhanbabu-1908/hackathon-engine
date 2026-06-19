@@ -35,7 +35,11 @@ function all(sql, params = []) {
 function lastInsertId() { return get('SELECT last_insert_rowid() as id').id; }
 
 async function initDB() {
-  const SQL = await initSqlJs();
+  // FIX: Explicitly load the WASM binary for pkg compatibility
+  const wasmPath = path.join(__dirname, 'node_modules/sql.js/dist/sql-wasm.wasm');
+  const SQL = await initSqlJs({
+    wasmBinary: fs.readFileSync(wasmPath)
+  });
 
   if (fs.existsSync(DB_PATH)) {
     db = new SQL.Database(fs.readFileSync(DB_PATH));
