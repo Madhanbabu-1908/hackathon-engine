@@ -1,9 +1,7 @@
-import initSqlJs from 'sql.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
+const initSqlJs = require('sql.js');
+const fs = require('fs');
+const path = require('path');
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DB_PATH = path.join(
   process.pkg ? path.dirname(process.execPath) : __dirname,
   'hackathon.db'
@@ -11,21 +9,21 @@ const DB_PATH = path.join(
 
 let db = null;
 
-export function saveDB() {
+function saveDB() {
   const data = db.export();
   fs.writeFileSync(DB_PATH, Buffer.from(data));
 }
 
-export function run(sql, params = []) { db.run(sql, params); saveDB(); }
+function run(sql, params = []) { db.run(sql, params); saveDB(); }
 
-export function get(sql, params = []) {
+function get(sql, params = []) {
   const stmt   = db.prepare(sql);
   const result = stmt.getAsObject(params);
   stmt.free();
   return Object.keys(result).length === 0 ? null : result;
 }
 
-export function all(sql, params = []) {
+function all(sql, params = []) {
   const stmt = db.prepare(sql);
   const rows = [];
   stmt.bind(params);
@@ -34,9 +32,9 @@ export function all(sql, params = []) {
   return rows;
 }
 
-export function lastInsertId() { return get('SELECT last_insert_rowid() as id').id; }
+function lastInsertId() { return get('SELECT last_insert_rowid() as id').id; }
 
-export async function initDB() {
+async function initDB() {
   const SQL = await initSqlJs();
 
   if (fs.existsSync(DB_PATH)) {
@@ -90,7 +88,6 @@ export async function initDB() {
     );
   `);
 
-  // ── Migration: add 'waiting' column if upgrading from older DB ──
   try {
     db.run(`ALTER TABLE teams ADD COLUMN waiting INTEGER NOT NULL DEFAULT 0`);
     console.log('[DB] Migration: added waiting column to teams.');
@@ -103,4 +100,4 @@ export async function initDB() {
   console.log('[DB] Schema ready.');
 }
 
-export default { run, get, all, lastInsertId, saveDB };
+module.exports = { run, get, all, lastInsertId, saveDB, initDB };
