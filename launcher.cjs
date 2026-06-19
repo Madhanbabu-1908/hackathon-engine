@@ -8,7 +8,7 @@ console.log(" Hackathon Engine Starting...");
 console.log("=================================");
 
 // IMPORTANT: start server directly (pkg-safe)
-import('./server/index.js');
+require('./server/index.js');
 
 function waitForServer(retries = 30) {
   http.get(`http://localhost:${PORT}/api/health`, (res) => {
