@@ -57,7 +57,36 @@ export default function Challenge() {
     } catch(err) { console.error(err); } finally { setLoading(false); }
   };
 
+  const speakQuestion = (text) => {
+  if (!window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  
+  const setVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    // Look specifically for Indian English accent
+    const indianVoice = voices.find(v => v.lang === 'en-IN') || voices.find(v => v.lang.startsWith('en-IN'));
+    if (indianVoice) {
+      utterance.voice = indianVoice;
+    }
+    utterance.rate = 0.9; // Slightly slower for clarity
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  if (window.speechSynthesis.getVoices().length === 0) {
+    window.speechSynthesis.onvoiceschanged = setVoice;
+  } else {
+    setVoice();
+  }
+};
+
   useEffect(() => () => clearInterval(timerRef.current), []);
+  useEffect(() => {
+  if (question) {
+    speakQuestion(question.question);
+  }
+}, [question]);
 
   const timerColor = timeLeft<=10 ? rgba('red',1) : timeLeft<=30 ? rgba('gold',1) : rgba('teal',1);
   const timerUrgent = timeLeft<=10 && phase==='ACTIVE';
