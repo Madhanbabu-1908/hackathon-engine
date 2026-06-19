@@ -34,6 +34,12 @@ jobs:
       - name: Build EXE
         run: pkg launcher.cjs --targets node18-win-x64 --output dist-exe/HackathonEngine.exe
 
+      - name: Patch EXE icon and execution level
+        run: |
+          npm install -g rcedit-cli
+          rcedit dist-exe\HackathonEngine.exe --set-icon assets\icon.ico
+          rcedit dist-exe\HackathonEngine.exe --set-requested-execution-level asInvoker
+
       - name: Copy env template
         run: copy .env.example dist-exe\.env
 
