@@ -9,6 +9,7 @@ const questionRoutes = require('./routes/questions.js');
 const archiveRoutes  = require('./routes/archive.js');
 const draftRoutes    = require('./routes/draft.js');
 const modelsRoutes   = require('./routes/models.js');
+const chatRoutes = require('./routes/chat.js');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
