@@ -1,12 +1,10 @@
-import { Router } from 'express';
-import OpenAI from 'openai';
-import https from 'https';
-import db from '../db.js';
+const { Router } = require('express');
+const OpenAI = require('openai');
+const https = require('https');
+const db = require('../db.js');
 
 const router = Router();
 
-// Build LLM client from request headers (set by frontend after login)
-// Falls back to .env values for backward compatibility
 function getLLMClient(req) {
   const apiKey  = req.headers['x-api-key']  || process.env.GENAI_API_KEY;
   const baseURL = req.headers['x-base-url'] || process.env.GENAI_BASE_URL;
@@ -47,7 +45,6 @@ Exactly 20 items. correct_idx is 0-based.`;
         { role: 'user',   content: prompt },
       ],
       max_tokens: 4000,
-      //temperature: 0.7,
     });
 
     const rawText = completion.choices[0]?.message?.content?.trim();
@@ -86,4 +83,4 @@ router.get('/next/:session_id', (req, res) => {
   });
 });
 
-export default router;
+module.exports = router;
