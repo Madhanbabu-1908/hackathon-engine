@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import db from '../db.js';
+const { Router } = require('express');
+const db = require('../db.js');
 
 const router = Router();
 
@@ -12,7 +12,6 @@ router.post('/create', (req, res) => {
     return res.status(400).json({ error: 'Team count must be between 2 and 6.' });
 
   try {
-    // Run inserts directly — sql.js auto-commits each run()
     db.run(
       `INSERT INTO sessions (label, date_label, difficulty, team_count, phase)
        VALUES (?, ?, ?, ?, 'SETUP')`,
@@ -88,8 +87,6 @@ router.patch('/:id/presentation-order', (req, res) => {
   res.json({ success: true });
 });
 
-export default router;
-
 // ── DELETE /api/sessions/:id ─────────────────────────────────
 // Hard delete — removes session + all related records
 router.delete('/:id', (req, res) => {
@@ -105,3 +102,5 @@ router.delete('/:id', (req, res) => {
     res.status(500).json({ error: 'Failed to delete session.' });
   }
 });
+
+module.exports = router;
