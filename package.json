@@ -14,16 +14,12 @@
     "build:exe": "npm run build:client && pkg . --targets node18-win-x64 --output dist-exe/HackathonEngine.exe"
   },
 
-  "pkg": {
-    "scripts": [
-      "launcher.cjs",
-      "server/**/*.js"
-    ],
-    "assets": [
-      "client/dist/**/*",
-      "server/**/*"
-    ]
-  },
+ "pkg": {
+  "scripts": ["server/**/*.js"],
+  "assets": ["client/dist/**/*"],
+  "targets": ["node18-win-x64"],
+  "outputPath": "dist-exe"
+},
 
   "devDependencies": {
     "concurrently": "^8.2.2",
