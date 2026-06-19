@@ -3,9 +3,9 @@
 // from the TCS MaaS endpoint. Avoids CORS issues from browser.
 // ============================================================
 
-import { Router } from 'express';
-import OpenAI from 'openai';
-import https from 'https';
+const { Router } = require('express');
+const OpenAI = require('openai');
+const https = require('https');
 
 const router = Router();
 
@@ -25,15 +25,12 @@ router.post('/list', async (req, res) => {
     });
 
     const response = await client.models.list();
-    //const models   = response.data || [];
 
-    // Filter to chat/text models only — exclude embedding models
     const models = (response.data || []).filter(m => {
       const id = m.id.toLowerCase();
       return !id.includes('embed') && !id.includes('embedding') && !id.includes('ada');
     });
 
-    // Sort alphabetically for cleaner dropdown
     models.sort((a, b) => a.id.localeCompare(b.id));
 
     console.log(`[MODELS] Fetched ${models.length} models from ${base_url}`);
@@ -45,4 +42,4 @@ router.post('/list', async (req, res) => {
   }
 });
 
-export default router;
+module.exports = router;
