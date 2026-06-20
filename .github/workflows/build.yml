@@ -34,15 +34,23 @@ jobs:
       - name: Build EXE
         run: npx @yao-pkg/pkg . --targets node20-win-x64 --output dist-exe/HackathonEngine.exe
 
-      - name: Replace EXE Icon with Resource Hacker
+      - name: Replace EXE Icon with rcedit
         shell: pwsh
         run: |
-          # Download Resource Hacker CLI
-          Invoke-WebRequest -Uri "https://www.angusj.com/resourcehacker/resource_hacker.zip" -OutFile rh.zip
-          Expand-Archive -Path rh.zip -DestinationPath rh -Force
+          # Install rcedit via npm (more reliable than manual download)
+          npm install -g rcedit
           
-          # Force replace the icon group in the EXE
-          .\rh\ResourceHacker.exe -open dist-exe/HackathonEngine.exe -save dist-exe/HackathonEngine.exe -action addoverwrite -res assets/icon.ico -mask ICONGROUP,MAINICON,0
+          # Verify icon exists and is valid
+          if (-not (Test-Path assets/icon.ico)) { 
+            Write-Error "Icon file not found!"
+            exit 1 
+          }
+          
+          # Force replace icon - rcedit handles PE resources safely
+          rcedit "dist-exe/HackathonEngine.exe" --set-icon "assets/icon.ico"
+          
+          # Verify EXE still runs
+          Test-Path "dist-exe/HackathonEngine.exe" || (Write-Error "EXE corrupted!")
 
       - name: Copy env template
         run: copy .env.example dist-exe\.env
